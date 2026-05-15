@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>BI Connector Pro - Odoo App Store</title>
+</head>
+<body style="margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:#f8fafc;color:#1e293b;">
+
+<style>
+    *{box-sizing:border-box;}
+    a{color:#2563eb;text-decoration:none;}
+    a:hover{text-decoration:underline;}
+
+    /* Hero */
+    .hero{background:linear-gradient(135deg,#0f2043 0%,#1e3a8a 50%,#0f766e 100%);color:#fff;padding:60px 40px;text-align:center;}
+    .hero h1{font-size:3em;margin:0 0 16px;font-weight:800;letter-spacing:-1px;}
+    .hero .tagline{font-size:1.3em;color:#7dd3fc;margin-bottom:32px;max-width:700px;margin-left:auto;margin-right:auto;}
+    .badges{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+    .badge{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:6px 18px;font-size:0.9em;color:#e0f2fe;}
+    .badge.green{background:rgba(20,184,166,0.3);border-color:#14b8a6;color:#99f6e4;}
+
+    /* Section */
+    .section{padding:60px 40px;max-width:1100px;margin:0 auto;}
+    .section-title{font-size:2em;font-weight:700;text-align:center;margin-bottom:8px;color:#0f2043;}
+    .section-sub{text-align:center;color:#64748b;margin-bottom:40px;font-size:1.05em;}
+
+    /* Screenshot gallery */
+    .gallery-wrap{background:#0f2043;padding:50px 40px;}
+    .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1100px;margin:0 auto;}
+    .gallery-thumb{cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid #1e3a8a;transition:border-color 0.2s,transform 0.2s;}
+    .gallery-thumb:hover{border-color:#14b8a6;transform:scale(1.02);}
+    .gallery-thumb img{width:100%;height:200px;object-fit:cover;display:block;}
+    .gallery-thumb p{background:#1e293b;color:#cbd5e1;font-size:0.85em;margin:0;padding:8px 12px;text-align:center;}
+
+    /* Lightbox */
+    .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;justify-content:center;align-items:center;}
+    .lightbox.open{display:flex;}
+    .lightbox img{max-width:90%;max-height:85vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+    .lightbox-close{position:absolute;top:20px;right:30px;color:#fff;font-size:2.5em;cursor:pointer;line-height:1;}
+    .lightbox-caption{position:absolute;bottom:20px;color:#e2e8f0;font-size:1em;text-align:center;width:100%;}
+
+    /* Feature cards */
+    .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+    .feature-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:box-shadow 0.2s;}
+    .feature-card:hover{box-shadow:0 8px 24px rgba(0,0,0,0.1);}
+    .feature-icon{font-size:2.5em;margin-bottom:14px;}
+    .feature-card h3{font-size:1.1em;font-weight:700;margin:0 0 8px;color:#0f2043;}
+    .feature-card p{color:#64748b;font-size:0.95em;line-height:1.6;margin:0;}
+
+    /* How it works */
+    .how-wrap{background:linear-gradient(135deg,#0f2043,#1e3a8a);padding:60px 40px;color:#fff;}
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;max-width:1100px;margin:0 auto;}
+    .step{text-align:center;padding:24px 16px;}
+    .step-num{width:56px;height:56px;border-radius:50%;background:#14b8a6;color:#fff;font-size:1.4em;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+    .step h3{font-size:1.05em;font-weight:700;margin:0 0 10px;color:#e0f2fe;}
+    .step p{color:#94a3b8;font-size:0.9em;line-height:1.6;margin:0;}
+    .step-arrow{display:flex;align-items:center;justify-content:center;color:#14b8a6;font-size:2em;padding-top:28px;}
+
+    /* API table */
+    .api-wrap{background:#f1f5f9;padding:60px 40px;}
+    .api-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);max-width:1100px;margin:0 auto;}
+    .api-table th{background:#0f2043;color:#fff;padding:14px 18px;text-align:left;font-size:0.95em;}
+    .api-table td{padding:12px 18px;border-bottom:1px solid #e2e8f0;font-size:0.9em;vertical-align:top;}
+    .api-table tr:last-child td{border-bottom:none;}
+    .api-table tr:hover td{background:#f8fafc;}
+    .method{display:inline-block;padding:2px 10px;border-radius:4px;font-weight:700;font-size:0.82em;}
+    .method.get{background:#dcfce7;color:#166534;}
+    .method.post{background:#dbeafe;color:#1e40af;}
+    code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:0.88em;color:#0f172a;}
+
+    /* Compatibility */
+    .compat-section{background:#fff;padding:60px 40px;}
+    .compat-grid{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;max-width:900px;margin:0 auto;}
+    .compat-badge{background:#0f2043;color:#fff;border-radius:8px;padding:10px 22px;font-weight:700;font-size:1.05em;}
+    .compat-badge.current{background:#14b8a6;}
+    .tool-grid{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:32px;max-width:900px;margin-left:auto;margin-right:auto;}
+    .tool-badge{background:#f1f5f9;border:2px solid #e2e8f0;color:#0f2043;border-radius:8px;padding:10px 22px;font-weight:600;}
+
+    /* Support */
+    .support-wrap{background:linear-gradient(135deg,#0f2043,#1e3a8a);padding:60px 40px;color:#fff;}
+    .support-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto;}
+    .support-card{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:32px 24px;text-align:center;}
+    .support-card h3{font-size:1.2em;font-weight:700;margin:0 0 12px;color:#7dd3fc;}
+    .support-card p{color:#94a3b8;font-size:0.95em;line-height:1.6;margin:0 0 20px;}
+    .btn{display:inline-block;padding:10px 24px;border-radius:6px;font-weight:600;font-size:0.95em;cursor:pointer;}
+    .btn-teal{background:#14b8a6;color:#fff;}
+    .btn-teal:hover{background:#0d9488;text-decoration:none;}
+    .btn-blue{background:#2563eb;color:#fff;}
+    .btn-blue:hover{background:#1d4ed8;text-decoration:none;}
+
+    /* Footer */
+    .footer{background:#0a1628;color:#64748b;padding:32px 40px;text-align:center;}
+    .footer a{color:#38bdf8;}
+
+    @media(max-width:768px){
+        .gallery{grid-template-columns:1fr 1fr;}
+        .features-grid{grid-template-columns:1fr;}
+        .steps{grid-template-columns:1fr 1fr;}
+        .support-grid{grid-template-columns:1fr;}
+        .hero h1{font-size:2em;}
+    }
+</style>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+    <div style="font-size:0.9em;color:#38bdf8;margin-bottom:12px;letter-spacing:2px;text-transform:uppercase;">Odoo 19 | Business Intelligence</div>
+    <h1>BI Connector Pro</h1>
+    <p class="tagline">Connect Odoo to Power BI, Tableau, Google Looker and any BI tool via secure OData/REST APIs with JWT authentication</p>
+    <div class="badges">
+        <span class="badge green">&#10003; Odoo Online</span>
+        <span class="badge green">&#10003; Odoo.sh</span>
+        <span class="badge green">&#10003; On-Premise</span>
+        <span class="badge">&#128274; JWT Auth</span>
+        <span class="badge">&#9881; OData v4</span>
+        <span class="badge">&#9889; REST API</span>
+    </div>
+</div>
+
+<!-- ===== SCREENSHOT GALLERY ===== -->
+<div class="gallery-wrap">
+    <div style="text-align:center;margin-bottom:32px;">
+        <h2 style="color:#fff;font-size:1.8em;margin:0 0 8px;">See It In Action</h2>
+        <p style="color:#7dd3fc;margin:0;">Real screenshots from a live Odoo 19 instance — click to enlarge</p>
+    </div>
+    <div class="gallery">
+        <div class="gallery-thumb" onclick="openLightbox('/odoo_bi_connector/static/description/screenshots/06_powerbi_dashboard.jpg','BI Connector on the Odoo Home Screen')">
+            <img src="screenshots/06_powerbi_dashboard.jpg" alt="BI Connector on Odoo Home Screen"/>
+            <p>BI Connector on Odoo Home Screen</p>
+        </div>
+        <div class="gallery-thumb" onclick="openLightbox('/odoo_bi_connector/static/description/screenshots/03_endpoints.jpg','API Endpoints — 5 active endpoints ready to connect')">
+            <img src="screenshots/03_endpoints.jpg" alt="API Endpoints List"/>
+            <p>API Endpoints List</p>
+        </div>
+        <div class="gallery-thumb" onclick="openLightbox('/odoo_bi_connector/static/description/screenshots/02_jwt_tokens.jpg','JWT Access Token Manager')">
+            <img src="screenshots/02_jwt_tokens.jpg" alt="JWT Access Token Manager"/>
+            <p>JWT Access Token Manager</p>
+        </div>
+        <div class="gallery-thumb" onclick="openLightbox('/odoo_bi_connector/static/description/screenshots/05_access_logs.jpg','API Request Access Logs')">
+            <img src="screenshots/05_access_logs.jpg" alt="API Request Access Logs"/>
+            <p>API Request Access Logs</p>
+        </div>
+        <div class="gallery-thumb" onclick="openLightbox('/odoo_bi_connector/static/description/screenshots/01_config_hub.jpg','BI Configuration — Stat Buttons &amp; Audit Trail')">
+            <img src="screenshots/01_config_hub.jpg" alt="BI Configuration Dashboard"/>
+            <p>Configuration Dashboard</p>
+        </div>
+        <div class="gallery-thumb" onclick="openLightbox('/odoo_bi_connector/static/description/screenshots/04_odata_feed.jpg','Configuration — Endpoint &amp; Token Overview')">
+            <img src="screenshots/04_odata_feed.jpg" alt="Configuration Overview"/>
+            <p>Configuration Overview</p>
+        </div>
+    </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+    <img id="lightbox-img" src="" alt=""/>
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
+
+<!-- ===== KEY FEATURES ===== -->
+<div class="section">
+    <h2 class="section-title">Key Features</h2>
+    <p class="section-sub">Everything you need to connect Odoo to your BI ecosystem</p>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">&#128274;</div>
+            <h3>JWT Authentication</h3>
+            <p>Industry-standard JWT tokens with configurable expiry, scope control and automatic revocation. No passwords in API calls.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">&#9889;</div>
+            <h3>OData v4 Support</h3>
+            <p>Native OData v4 endpoint compatible with Power BI, Excel Get Data, and any OData-aware tool. Plug in directly.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">&#128200;</div>
+            <h3>REST JSON API</h3>
+            <p>Clean RESTful JSON endpoints with pagination, filtering, ordering and field selection. Works with any BI platform.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">&#127959;</div>
+            <h3>Configurable Endpoints</h3>
+            <p>Define custom endpoints per Odoo model with domain filters, field selection and record limits. No code needed.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">&#128203;</div>
+            <h3>Full Audit Logging</h3>
+            <p>Every API request is logged with IP address, response time, record count and error details for compliance.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">&#9881;</div>
+            <h3>Rate Limiting &amp; CORS</h3>
+            <p>Built-in rate limiting per token and configurable CORS origins to secure your API against abuse.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== HOW IT WORKS ===== -->
+<div class="how-wrap">
+    <div style="text-align:center;margin-bottom:40px;">
+        <h2 style="color:#fff;font-size:1.8em;margin:0 0 8px;">How It Works</h2>
+        <p style="color:#7dd3fc;margin:0;">Four steps from installation to live dashboard</p>
+    </div>
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <h3>Install &amp; Configure</h3>
+            <p>Install the module and create your BI Configuration with a JWT secret key and expiry settings.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <h3>Define Endpoints</h3>
+            <p>Create endpoints for each Odoo model you want to expose &#8212; Sales Orders, Invoices, Products, etc.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <h3>Generate Tokens</h3>
+            <p>Create JWT access tokens for each BI tool or team member with the appropriate scope and expiry.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <h3>Connect &amp; Analyze</h3>
+            <p>Paste the OData URL and token into Power BI, Tableau or any BI tool and start building dashboards.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== API REFERENCE ===== -->
+<div class="api-wrap">
+    <div style="max-width:1100px;margin:0 auto;">
+        <h2 class="section-title">API Reference</h2>
+        <p class="section-sub">All endpoints require a Bearer JWT token in the Authorization header</p>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Description</th>
+                    <th>Auth</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="method post">POST</span></td>
+                    <td><code>/api/bi/v1/token</code></td>
+                    <td>Issue a JWT access token using Odoo credentials</td>
+                    <td>Basic / Body</td>
+                </tr>
+                <tr>
+                    <td><span class="method post">POST</span></td>
+                    <td><code>/api/bi/v1/token/revoke</code></td>
+                    <td>Revoke the current JWT token</td>
+                    <td>Bearer JWT</td>
+                </tr>
+                <tr>
+                    <td><span class="method get">GET</span></td>
+                    <td><code>/api/bi/v1/odata</code></td>
+                    <td>OData service document listing all active endpoints</td>
+                    <td>Bearer JWT</td>
+                </tr>
+                <tr>
+                    <td><span class="method get">GET</span></td>
+                    <td><code>/api/bi/v1/odata/{endpoint}</code></td>
+                    <td>OData entity set &#8212; supports $top, $skip parameters</td>
+                    <td>Bearer JWT</td>
+                </tr>
+                <tr>
+                    <td><span class="method get">GET</span></td>
+                    <td><code>/api/bi/v1/data/{endpoint}</code></td>
+                    <td>REST JSON data with limit, offset, order, domain params</td>
+                    <td>Bearer JWT</td>
+                </tr>
+                <tr>
+                    <td><span class="method get">GET</span></td>
+                    <td><code>/api/bi/v1/schema/{endpoint}</code></td>
+                    <td>Field schema information for an endpoint</td>
+                    <td>Bearer JWT</td>
+                </tr>
+                <tr>
+                    <td><span class="method get">GET</span></td>
+                    <td><code>/api/bi/v1/health</code></td>
+                    <td>Health check &#8212; no auth required</td>
+                    <td>None</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== COMPATIBILITY ===== -->
+<div class="compat-section">
+    <h2 class="section-title">Compatibility</h2>
+    <p class="section-sub">Tested across Odoo versions and leading BI platforms</p>
+    <p style="text-align:center;color:#64748b;margin-bottom:20px;font-weight:600;">Odoo Versions</p>
+    <div class="compat-grid">
+        <span class="compat-badge">Odoo 13</span>
+        <span class="compat-badge">Odoo 14</span>
+        <span class="compat-badge">Odoo 15</span>
+        <span class="compat-badge">Odoo 16</span>
+        <span class="compat-badge">Odoo 17</span>
+        <span class="compat-badge">Odoo 18</span>
+        <span class="compat-badge current">Odoo 19 &#10003;</span>
+    </div>
+    <p style="text-align:center;color:#64748b;margin:40px 0 20px;font-weight:600;">Compatible BI Tools</p>
+    <div class="tool-grid">
+        <span class="tool-badge">&#128200; Microsoft Power BI</span>
+        <span class="tool-badge">&#128203; Tableau</span>
+        <span class="tool-badge">&#128202; Google Looker Studio</span>
+        <span class="tool-badge">&#128196; Apache Superset</span>
+        <span class="tool-badge">&#9881; Metabase</span>
+        <span class="tool-badge">&#128186; Microsoft Excel</span>
+        <span class="tool-badge">&#128201; Grafana</span>
+        <span class="tool-badge">&#128204; Any OData Tool</span>
+    </div>
+</div>
+
+<!-- ===== SUPPORT ===== -->
+<div class="support-wrap">
+    <div style="text-align:center;margin-bottom:40px;">
+        <h2 style="color:#fff;font-size:1.8em;margin:0 0 8px;">Support &amp; Services</h2>
+        <p style="color:#7dd3fc;margin:0;">We are here to help you succeed</p>
+    </div>
+    <div class="support-grid">
+        <div class="support-card">
+            <h3>&#127381; Free Demo</h3>
+            <p>Try BI Connector Pro on your own Odoo instance. We will set up a demo environment for you to test before purchase.</p>
+            <a href="mailto:abdzoro89@gmail.com?subject=BI Connector Demo Request" class="btn btn-teal">Request Demo</a>
+        </div>
+        <div class="support-card">
+            <h3>&#127863; Lifetime Support</h3>
+            <p>Purchase includes 1 year of priority email support, bug fixes and minor updates. Optional extended support available.</p>
+            <a href="mailto:abdzoro89@gmail.com" class="btn btn-blue">Contact Support</a>
+        </div>
+        <div class="support-card">
+            <h3>&#9881; Customization</h3>
+            <p>Need custom endpoints, advanced filtering, SSO integration or a bespoke Power BI template? We build it for you.</p>
+            <a href="mailto:abdzoro89@gmail.com?subject=BI Connector Customization" class="btn btn-teal">Get a Quote</a>
+        </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;color:#64748b;font-size:0.95em;">
+        <strong style="color:#7dd3fc;">Email:</strong>&#160;<a href="mailto:abdzoro89@gmail.com" style="color:#38bdf8;">abdzoro89@gmail.com</a>
+        &#160;&#160;|&#160;&#160;
+        <strong style="color:#7dd3fc;">Website:</strong>&#160;<a href="https://leapai.ai" style="color:#38bdf8;">leapai.ai</a>
+    </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="footer">
+    <p style="margin:0 0 8px;font-size:1.1em;color:#e2e8f0;font-weight:600;">BI Connector Pro for Odoo 19</p>
+    <p style="margin:0 0 8px;">Built by <a href="https://leapai.ai">leapai.ai</a> &#160;|&#160; Maintainer: <a href="mailto:a.osman@bab.com.sa">a.osman@bab.com.sa</a></p>
+    <p style="margin:0;font-size:0.85em;">Licensed under LGPL-3 &#160;|&#160; Version 19.0.1.0.0</p>
+</div>
+
+<script>
+function openLightbox(src, caption) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-caption').textContent = caption;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeLightbox(e) {
+    if (!e || e.target === document.getElementById('lightbox') || e.target.classList.contains('lightbox-close')) {
+        document.getElementById('lightbox').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox({target: document.getElementById('lightbox')});
+});
+</script>
+
+</body>
+</html>

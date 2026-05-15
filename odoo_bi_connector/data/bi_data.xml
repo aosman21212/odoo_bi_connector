@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Default BI Configuration -->
+        <record id="bi_config_default" model="bi.config">
+            <field name="name">Default BI Configuration</field>
+            <field name="jwt_secret">change-me-in-production-use-a-strong-secret-key-here</field>
+            <field name="token_expiry">3600</field>
+            <field name="rate_limit">1000</field>
+            <field name="odata_enabled" eval="True"/>
+            <field name="rest_enabled" eval="True"/>
+            <field name="log_requests" eval="True"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="allowed_origins">https://app.powerbi.com
+https://public.tableau.com
+https://datastudio.google.com
+https://lookerstudio.google.com</field>
+        </record>
+
+        <!-- Endpoint 1: Users (always available) -->
+        <record id="bi_endpoint_users" model="bi.endpoint">
+            <field name="name">Users</field>
+            <field name="technical_name">users</field>
+            <field name="config_id" ref="bi_config_default"/>
+            <field name="model_id" search="[('model','=','res.users')]"/>
+            <field name="domain">[('active','=',True)]</field>
+            <field name="limit">5000</field>
+            <field name="order_by">name asc</field>
+            <field name="state">active</field>
+            <field name="description">Active Odoo users for user activity dashboards.</field>
+        </record>
+
+        <!-- Endpoint 2: Companies (always available) -->
+        <record id="bi_endpoint_companies" model="bi.endpoint">
+            <field name="name">Companies</field>
+            <field name="technical_name">companies</field>
+            <field name="config_id" ref="bi_config_default"/>
+            <field name="model_id" search="[('model','=','res.company')]"/>
+            <field name="domain">[]</field>
+            <field name="limit">1000</field>
+            <field name="order_by">name asc</field>
+            <field name="state">active</field>
+            <field name="description">Company data for multi-company BI dashboards.</field>
+        </record>
+
+        <!-- Endpoint 3: Partners / Contacts (always available) -->
+        <record id="bi_endpoint_customers" model="bi.endpoint">
+            <field name="name">Customers</field>
+            <field name="technical_name">customers</field>
+            <field name="config_id" ref="bi_config_default"/>
+            <field name="model_id" search="[('model','=','res.partner')]"/>
+            <field name="domain">[('customer_rank','>',0),('active','=',True)]</field>
+            <field name="limit">5000</field>
+            <field name="order_by">name asc</field>
+            <field name="state">active</field>
+            <field name="description">Customer contact list for CRM and sales analysis dashboards.</field>
+        </record>
+
+        <!-- Endpoint 4: Countries (always available) -->
+        <record id="bi_endpoint_countries" model="bi.endpoint">
+            <field name="name">Countries</field>
+            <field name="technical_name">countries</field>
+            <field name="config_id" ref="bi_config_default"/>
+            <field name="model_id" search="[('model','=','res.country')]"/>
+            <field name="domain">[]</field>
+            <field name="limit">300</field>
+            <field name="order_by">name asc</field>
+            <field name="state">active</field>
+            <field name="description">Country reference data for geographic analysis.</field>
+        </record>
+
+        <!-- Endpoint 5: Currencies (always available) -->
+        <record id="bi_endpoint_currencies" model="bi.endpoint">
+            <field name="name">Currencies</field>
+            <field name="technical_name">currencies</field>
+            <field name="config_id" ref="bi_config_default"/>
+            <field name="model_id" search="[('model','=','res.currency')]"/>
+            <field name="domain">[('active','=',True)]</field>
+            <field name="limit">200</field>
+            <field name="order_by">name asc</field>
+            <field name="state">active</field>
+            <field name="description">Active currencies for multi-currency financial reporting.</field>
+        </record>
+
+    </data>
+
+</odoo>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- BI Config Form View -->
+    <record id="view_bi_config_form" model="ir.ui.view">
+        <field name="name">bi.config.form</field>
+        <field name="model">bi.config</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="active" widget="boolean_toggle"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object"
+                                name="action_view_endpoints"
+                                icon="fa-plug"
+                                invisible="not id">
+                            <field name="endpoint_count" widget="statinfo" string="Endpoints"/>
+                        </button>
+                        <button class="oe_stat_button" type="object"
+                                name="action_view_tokens"
+                                icon="fa-key"
+                                invisible="not id">
+                            <field name="token_count" widget="statinfo" string="Tokens"/>
+                        </button>
+                        <button class="oe_stat_button" type="object"
+                                name="action_view_logs"
+                                icon="fa-list-alt"
+                                invisible="not id">
+                            <field name="log_count" widget="statinfo" string="Logs"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Production BI Config"/></h1>
+                    </div>
+                    <group>
+                        <group string="General">
+                            <field name="company_id"/>
+                            <field name="token_expiry"/>
+                            <field name="rate_limit"/>
+                        </group>
+                        <group string="Features">
+                            <field name="odata_enabled"/>
+                            <field name="rest_enabled"/>
+                            <field name="log_requests"/>
+                        </group>
+                    </group>
+                    <group string="Security">
+                        <field name="jwt_secret" password="True"/>
+                        <field name="allowed_origins" placeholder="https://app.powerbi.com&#10;https://public.tableau.com"/>
+                    </group>
+                    <notebook>
+                        <page string="Endpoints" name="endpoints">
+                            <field name="endpoint_ids" context="{'default_config_id': id}">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="technical_name"/>
+                                    <field name="model_id"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'active'"
+                                           decoration-warning="state == 'draft'"
+                                           decoration-danger="state == 'suspended'"/>
+                                    <field name="call_count"/>
+                                    <field name="last_called"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Access Tokens" name="tokens">
+                            <field name="token_ids" context="{'default_config_id': id}">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="user_id"/>
+                                    <field name="scope"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'active'"
+                                           decoration-danger="state in ('expired','revoked')"/>
+                                    <field name="expires_at"/>
+                                    <field name="use_count"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Access Logs" name="logs">
+                            <field name="log_ids">
+                                <list>
+                                    <field name="timestamp"/>
+                                    <field name="method"/>
+                                    <field name="path"/>
+                                    <field name="status_code"/>
+                                    <field name="response_time"/>
+                                    <field name="record_count"/>
+                                    <field name="ip_address"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- BI Config List View -->
+    <record id="view_bi_config_list" model="ir.ui.view">
+        <field name="name">bi.config.list</field>
+        <field name="model">bi.config</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="odata_enabled" optional="show"/>
+                <field name="rest_enabled" optional="show"/>
+                <field name="token_expiry" optional="show"/>
+                <field name="rate_limit" optional="show"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- BI Config Action -->
+    <record id="action_bi_config" model="ir.actions.act_window">
+        <field name="name">BI Configuration</field>
+        <field name="res_model">bi.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first BI Connector configuration
+            </p>
+            <p>
+                Set up a configuration to connect Odoo to Power BI, Tableau,
+                Google Looker and other BI tools via secure OData/REST APIs.
+            </p>
+        </field>
+    </record>
+
+</odoo>

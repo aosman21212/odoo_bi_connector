@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- BI Token Form View -->
+    <record id="view_bi_token_form" model="ir.ui.view">
+        <field name="name">bi.token.form</field>
+        <field name="model">bi.token</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_token" type="object"
+                            string="Generate Token" class="oe_highlight"
+                            invisible="state == 'revoked'"/>
+                    <button name="action_revoke" type="object"
+                            string="Revoke Token"
+                            invisible="state in ('expired', 'revoked')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="active,expired,revoked"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Power BI Dashboard Token"/></h1>
+                    </div>
+                    <group>
+                        <group string="Token Settings">
+                            <field name="config_id"/>
+                            <field name="user_id"/>
+                            <field name="scope"/>
+                            <field name="expires_at"/>
+                        </group>
+                        <group string="Usage Statistics">
+                            <field name="use_count"/>
+                            <field name="last_used"/>
+                        </group>
+                    </group>
+                    <group string="Allowed Endpoints" invisible="scope != 'endpoint'">
+                        <field name="endpoint_ids" widget="many2many_tags" nolabel="1" colspan="2"/>
+                    </group>
+                    <group string="JWT Token" invisible="not token">
+                        <field name="token" nolabel="1" colspan="2"
+                               readonly="1"/>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="token">
+                        Click <strong>Generate Token</strong> to create a JWT access token.
+                        Copy the token and use it as a Bearer token in your BI tool.
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not token">
+                        <strong>Security Notice:</strong> Copy this token now.
+                        For security, regenerating the token will invalidate the previous one.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- BI Token List View -->
+    <record id="view_bi_token_list" model="ir.ui.view">
+        <field name="name">bi.token.list</field>
+        <field name="model">bi.token</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="config_id"/>
+                <field name="user_id"/>
+                <field name="scope"/>
+                <field name="expires_at"/>
+                <field name="use_count"/>
+                <field name="last_used" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-warning="state == 'expired'"
+                       decoration-danger="state == 'revoked'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- BI Token Search View -->
+    <record id="view_bi_token_search" model="ir.ui.view">
+        <field name="name">bi.token.search</field>
+        <field name="model">bi.token</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="config_id"/>
+                <filter string="Active" name="filter_active"
+                        domain="[('state', '=', 'active')]"/>
+                <filter string="Expired" name="filter_expired"
+                        domain="[('state', '=', 'expired')]"/>
+                <filter string="Revoked" name="filter_revoked"
+                        domain="[('state', '=', 'revoked')]"/>
+                <group>
+                    <filter string="User" name="group_user"
+                            context="{'group_by': 'user_id'}"/>
+                    <filter string="Configuration" name="group_config"
+                            context="{'group_by': 'config_id'}"/>
+                    <filter string="Scope" name="group_scope"
+                            context="{'group_by': 'scope'}"/>
+                    <filter string="State" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- BI Token Action -->
+    <record id="action_bi_token" model="ir.actions.act_window">
+        <field name="name">Access Tokens</field>
+        <field name="res_model">bi.token</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_bi_token_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first API access token
+            </p>
+            <p>
+                Generate JWT tokens to authenticate your BI tools against the Odoo API.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- BI Endpoint Form View -->
+    <record id="view_bi_endpoint_form" model="ir.ui.view">
+        <field name="name">bi.endpoint.form</field>
+        <field name="model">bi.endpoint</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_activate" type="object" string="Activate"
+                            class="oe_highlight"
+                            invisible="state == 'active'"/>
+                    <button name="action_suspend" type="object" string="Suspend"
+                            invisible="state != 'active'"/>
+                    <button name="action_draft" type="object" string="Reset to Draft"
+                            invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active,suspended"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Sales Orders"/></h1>
+                    </div>
+                    <group>
+                        <group string="Endpoint Settings">
+                            <field name="technical_name"
+                                   placeholder="e.g. sales_orders"/>
+                            <field name="config_id"/>
+                            <field name="model_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Query Settings">
+                            <field name="domain" placeholder="[('state','=','sale')]"/>
+                            <field name="limit"/>
+                            <field name="order_by" placeholder="id desc"/>
+                        </group>
+                    </group>
+                    <group string="Exposed Fields">
+                        <field name="field_ids" widget="many2many_tags"
+                               domain="[('model_id', '=', model_id)]"
+                               nolabel="1" colspan="2"/>
+                    </group>
+                    <group string="Statistics" invisible="not id">
+                        <field name="call_count"/>
+                        <field name="last_called"/>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1" colspan="2"
+                               placeholder="Describe what data this endpoint exposes..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- BI Endpoint List View -->
+    <record id="view_bi_endpoint_list" model="ir.ui.view">
+        <field name="name">bi.endpoint.list</field>
+        <field name="model">bi.endpoint</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="technical_name"/>
+                <field name="config_id" optional="show"/>
+                <field name="model_id"/>
+                <field name="limit" optional="show"/>
+                <field name="call_count"/>
+                <field name="last_called" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-warning="state == 'draft'"
+                       decoration-danger="state == 'suspended'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- BI Endpoint Search View -->
+    <record id="view_bi_endpoint_search" model="ir.ui.view">
+        <field name="name">bi.endpoint.search</field>
+        <field name="model">bi.endpoint</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="technical_name"/>
+                <field name="model_id"/>
+                <filter string="Active" name="filter_active"
+                        domain="[('state', '=', 'active')]"/>
+                <filter string="Draft" name="filter_draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter string="Suspended" name="filter_suspended"
+                        domain="[('state', '=', 'suspended')]"/>
+                <separator/>
+                <filter string="Archived" name="filter_archived"
+                        domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Configuration" name="group_config"
+                            context="{'group_by': 'config_id'}"/>
+                    <filter string="State" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Model" name="group_model"
+                            context="{'group_by': 'model_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- BI Endpoint Action -->
+    <record id="action_bi_endpoint" model="ir.actions.act_window">
+        <field name="name">Endpoints</field>
+        <field name="res_model">bi.endpoint</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_bi_endpoint_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first BI endpoint
+            </p>
+            <p>
+                Endpoints expose specific Odoo model data via the REST/OData API.
+            </p>
+        </field>
+    </record>
+
+</odoo>

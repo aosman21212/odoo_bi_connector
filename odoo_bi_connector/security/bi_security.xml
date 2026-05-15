@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- BI User: read-only access to BI data -->
+        <record id="group_bi_user" model="res.groups">
+            <field name="name">BI Connector / User</field>
+        </record>
+
+        <!-- BI Admin: full access to configure BI Connector -->
+        <record id="group_bi_admin" model="res.groups">
+            <field name="name">BI Connector / Administrator</field>
+            <field name="implied_ids" eval="[(4, ref('group_bi_user'))]"/>
+        </record>
+
+        <!-- All internal users automatically get BI User access (makes app visible on home screen) -->
+        <record id="base.group_user" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('group_bi_user'))]"/>
+        </record>
+
+        <!-- All system administrators automatically get BI Admin access -->
+        <record id="base.group_system" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('group_bi_admin'))]"/>
+        </record>
+
+    </data>
+</odoo>

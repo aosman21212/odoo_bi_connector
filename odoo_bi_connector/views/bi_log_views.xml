@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- BI Log List View -->
+    <record id="view_bi_log_list" model="ir.ui.view">
+        <field name="name">bi.log.list</field>
+        <field name="model">bi.log</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false" delete="false">
+                <field name="timestamp"/>
+                <field name="method"/>
+                <field name="path"/>
+                <field name="status_code" optional="show"/>
+                <field name="response_time" optional="show"/>
+                <field name="record_count" optional="show"/>
+                <field name="ip_address" optional="show"/>
+                <field name="endpoint_id" optional="show"/>
+                <field name="token_id" optional="show"/>
+                <field name="error_message" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- BI Log Form View (read-only detail) -->
+    <record id="view_bi_log_form" model="ir.ui.view">
+        <field name="name">bi.log.form</field>
+        <field name="model">bi.log</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false" delete="false">
+                <sheet>
+                    <group>
+                        <group string="Request">
+                            <field name="timestamp"/>
+                            <field name="method"/>
+                            <field name="path"/>
+                            <field name="ip_address"/>
+                        </group>
+                        <group string="Response">
+                            <field name="status_code"/>
+                            <field name="response_time"/>
+                            <field name="record_count"/>
+                        </group>
+                    </group>
+                    <group string="Related">
+                        <field name="config_id"/>
+                        <field name="endpoint_id"/>
+                        <field name="token_id"/>
+                    </group>
+                    <group string="Error" invisible="not error_message">
+                        <field name="error_message" nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- BI Log Search View -->
+    <record id="view_bi_log_search" model="ir.ui.view">
+        <field name="name">bi.log.search</field>
+        <field name="model">bi.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="path"/>
+                <field name="ip_address"/>
+                <field name="endpoint_id"/>
+                <field name="token_id"/>
+                <filter string="Success (2xx)" name="filter_success"
+                        domain="[('status_code', '&gt;=', 200), ('status_code', '&lt;', 300)]"/>
+                <filter string="Client Errors (4xx)" name="filter_4xx"
+                        domain="[('status_code', '&gt;=', 400), ('status_code', '&lt;', 500)]"/>
+                <filter string="Server Errors (5xx)" name="filter_5xx"
+                        domain="[('status_code', '&gt;=', 500)]"/>
+                <group>
+                    <filter string="Endpoint" name="group_endpoint"
+                            context="{'group_by': 'endpoint_id'}"/>
+                    <filter string="Status Code" name="group_status"
+                            context="{'group_by': 'status_code'}"/>
+                    <filter string="Date" name="group_date"
+                            context="{'group_by': 'timestamp:day'}"/>
+                    <filter string="Token" name="group_token"
+                            context="{'group_by': 'token_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- BI Log Action -->
+    <record id="action_bi_log" model="ir.actions.act_window">
+        <field name="name">Access Logs</field>
+        <field name="res_model">bi.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_bi_log_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No API requests logged yet
+            </p>
+            <p>
+                API request logs will appear here once you start using the BI Connector endpoints.
+            </p>
+        </field>
+    </record>
+
+</odoo>

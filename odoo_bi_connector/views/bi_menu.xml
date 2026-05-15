@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Main BI Connector Menu — visible to all internal users -->
+    <menuitem
+        id="menu_bi_connector_root"
+        name="BI Connector"
+        sequence="90"
+        web_icon="odoo_bi_connector,static/description/icon.png"/>
+
+    <!-- Configuration sub-menu -->
+    <menuitem
+        id="menu_bi_configuration"
+        name="Configuration"
+        parent="menu_bi_connector_root"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_bi_config"
+        name="BI Configuration"
+        parent="menu_bi_configuration"
+        action="action_bi_config"
+        sequence="10"/>
+
+    <!-- Endpoints sub-menu -->
+    <menuitem
+        id="menu_bi_endpoints"
+        name="Endpoints"
+        parent="menu_bi_connector_root"
+        action="action_bi_endpoint"
+        sequence="20"/>
+
+    <!-- Tokens sub-menu -->
+    <menuitem
+        id="menu_bi_tokens"
+        name="Access Tokens"
+        parent="menu_bi_connector_root"
+        action="action_bi_token"
+        sequence="30"/>
+
+    <!-- Logs sub-menu -->
+    <menuitem
+        id="menu_bi_logs"
+        name="Access Logs"
+        parent="menu_bi_connector_root"
+        action="action_bi_log"
+        sequence="40"/>
+
+</odoo>

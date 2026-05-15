@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bi_config_admin,bi.config admin,model_bi_config,odoo_bi_connector.group_bi_admin,1,1,1,1
+access_bi_config_user,bi.config user,model_bi_config,odoo_bi_connector.group_bi_user,1,0,0,0
+access_bi_endpoint_admin,bi.endpoint admin,model_bi_endpoint,odoo_bi_connector.group_bi_admin,1,1,1,1
+access_bi_endpoint_user,bi.endpoint user,model_bi_endpoint,odoo_bi_connector.group_bi_user,1,0,0,0
+access_bi_token_admin,bi.token admin,model_bi_token,odoo_bi_connector.group_bi_admin,1,1,1,1
+access_bi_token_user,bi.token user,model_bi_token,odoo_bi_connector.group_bi_user,1,0,0,0
+access_bi_log_admin,bi.log admin,model_bi_log,odoo_bi_connector.group_bi_admin,1,0,0,0
+access_bi_log_user,bi.log user,model_bi_log,odoo_bi_connector.group_bi_user,1,0,0,0
