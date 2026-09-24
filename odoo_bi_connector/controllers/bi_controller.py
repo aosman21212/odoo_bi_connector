@@ -52,49 +52,88 @@ def _verify_jwt(secret, token):
         return None
 
 
+def _decode_jwt_payload(token):
+    """Decode JWT payload without verifying signature. Returns dict or None."""
+    try:
+        parts = token.split('.')
+        if len(parts) != 3:
+            return None
+        return json.loads(_b64url_decode(parts[1]))
+    except Exception:
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 def _get_active_config():
-    """Return the active bi.config for current company."""
+    """
+    Return the active bi.config for the current company.
+    If none matches request.env.company (common on auth='none' / multi-company),
+    fall back to the single active config in the database when exactly one exists.
+    """
+    Config = request.env['bi.config'].sudo()
     company_id = request.env.company.id
-    config = request.env['bi.config'].sudo().search(
+    config = Config.search(
         [('active', '=', True), ('company_id', '=', company_id)],
         limit=1,
     )
-    return config
+    if config:
+        return config
+    configs = Config.search([('active', '=', True)])
+    if len(configs) == 1:
+        return configs
+    return Config.browse()
 
 
 def _authenticate_request():
     """
     Extract and verify Bearer JWT from Authorization header.
-    Returns (token_record, payload) or (None, None).
+
+    Resolves bi.config via the token record linked by JWT token_id (not via
+    request.env.company), so multi-company / anonymous company mismatch does
+    not block valid tokens.
+
+    Returns (token_record, payload, config, error) where error is None on
+    success, or one of: 'missing_bearer', 'no_config', 'unauthorized'.
     """
     auth_header = request.httprequest.headers.get('Authorization', '')
     if not auth_header.startswith('Bearer '):
-        return None, None, None
+        return None, None, None, 'missing_bearer'
 
     jwt_str = auth_header[7:].strip()
-    config = _get_active_config()
-    if not config:
-        return None, None, None
+    unverified = _decode_jwt_payload(jwt_str)
+    if not unverified or not unverified.get('token_id'):
+        return None, None, None, 'unauthorized'
+
+    token_rec = request.env['bi.token'].sudo().browse(unverified['token_id'])
+    if not token_rec.exists() or not token_rec.config_id:
+        return None, None, None, 'unauthorized'
+
+    config = token_rec.config_id
+    if not config.active or not config.jwt_secret:
+        return None, None, None, 'no_config'
 
     payload = _verify_jwt(config.jwt_secret, jwt_str)
     if not payload:
-        return None, None, config
+        return None, None, config, 'unauthorized'
 
-    token_id = payload.get('token_id')
-    token_rec = request.env['bi.token'].sudo().browse(token_id)
-    if not token_rec.exists() or token_rec.state != 'active':
-        return None, None, config
+    if token_rec.state != 'active':
+        return None, None, config, 'unauthorized'
 
-    # Update usage stats
     token_rec.sudo().write({
         'last_used': fields.Datetime.now(),
         'use_count': token_rec.use_count + 1,
     })
-    return token_rec, payload, config
+    return token_rec, payload, config, None
+
+
+def _auth_failure_response(error):
+    """Map auth error code to the correct HTTP response (503 vs 401)."""
+    if error == 'no_config':
+        return _error('No active BI configuration found.', 503)
+    return _error('Unauthorized.', 401)
 
 
 def _log_request(config, token, endpoint, status_code, response_time=0,
@@ -252,9 +291,9 @@ class BiConnectorController(http.Controller):
     )
     def revoke_token(self, **kwargs):
         start = time.time()
-        token_rec, payload, config = _authenticate_request()
-        if not token_rec:
-            return _error('Unauthorized.', 401)
+        token_rec, payload, config, auth_error = _authenticate_request()
+        if auth_error:
+            return _auth_failure_response(auth_error)
 
         token_rec.sudo().action_revoke()
         elapsed = (time.time() - start) * 1000
@@ -275,9 +314,9 @@ class BiConnectorController(http.Controller):
     )
     def odata_service_doc(self, **kwargs):
         start = time.time()
-        token_rec, payload, config = _authenticate_request()
-        if not token_rec:
-            return _error('Unauthorized.', 401)
+        token_rec, payload, config, auth_error = _authenticate_request()
+        if auth_error:
+            return _auth_failure_response(auth_error)
         if not config.odata_enabled:
             return _error('OData endpoint is disabled.', 403)
 
@@ -318,9 +357,9 @@ class BiConnectorController(http.Controller):
     )
     def odata_entity_set(self, endpoint_name, **kwargs):
         start = time.time()
-        token_rec, payload, config = _authenticate_request()
-        if not token_rec:
-            return _error('Unauthorized.', 401)
+        token_rec, payload, config, auth_error = _authenticate_request()
+        if auth_error:
+            return _auth_failure_response(auth_error)
         if not config.odata_enabled:
             return _error('OData endpoint is disabled.', 403)
 
@@ -375,9 +414,9 @@ class BiConnectorController(http.Controller):
     )
     def rest_data(self, endpoint_name, **kwargs):
         start = time.time()
-        token_rec, payload, config = _authenticate_request()
-        if not token_rec:
-            return _error('Unauthorized.', 401)
+        token_rec, payload, config, auth_error = _authenticate_request()
+        if auth_error:
+            return _auth_failure_response(auth_error)
         if not config.rest_enabled:
             return _error('REST API endpoint is disabled.', 403)
 
@@ -440,9 +479,9 @@ class BiConnectorController(http.Controller):
     )
     def endpoint_schema(self, endpoint_name, **kwargs):
         start = time.time()
-        token_rec, payload, config = _authenticate_request()
-        if not token_rec:
-            return _error('Unauthorized.', 401)
+        token_rec, payload, config, auth_error = _authenticate_request()
+        if auth_error:
+            return _auth_failure_response(auth_error)
 
         endpoint = request.env['bi.endpoint'].sudo().search([
             ('technical_name', '=', endpoint_name),
@@ -497,5 +536,7 @@ class BiConnectorController(http.Controller):
             'service': 'BI Connector',
             'version': '19.0.1.0.0',
             'configured': bool(config),
+            'company_id': request.env.company.id,
+            'config_company_id': config.company_id.id if config else None,
             'timestamp': time.time(),
         })
